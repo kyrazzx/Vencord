@@ -127,14 +127,21 @@ export default definePlugin({
     },
 
     getDecorAvatarDecorationURL({ avatarDecoration, canAnimate }: { avatarDecoration: AvatarDecoration | null; canAnimate?: boolean; }) {
+        if (avatarDecoration?.skuId === RAW_SKU_ID) {
+            return avatarDecoration.asset;
+        }
+
         // Only Decor avatar decorations have this SKU ID
         if (avatarDecoration?.skuId === SKU_ID) {
-            const parts = avatarDecoration.asset.split("_");
+            let assetId = avatarDecoration.asset;
+            const isAnimated = assetId.startsWith("a_");
+
             // Remove a_ prefix if it's animated and animation is disabled
-            if (avatarDecoration.asset.startsWith("a_") && !canAnimate) parts.shift();
-            return `${CDN_URL}/${parts.join("_")}.png`;
-        } else if (avatarDecoration?.skuId === RAW_SKU_ID) {
-            return avatarDecoration.asset;
+            if (isAnimated && !canAnimate) {
+                assetId = assetId.substring(2);
+            }
+
+            return `${CDN_URL}/${assetId}.png`;
         }
     },
 
